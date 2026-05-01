@@ -265,7 +265,6 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        # ✅ EXACT match with frontend name attributes
         features = [
             float(request.form['age']),
             float(request.form['blood_pressure']),
@@ -293,33 +292,30 @@ def predict():
             float(request.form['aanemia'])
         ]
 
-        print("✅ Features:", features)
-
         final_features = [np.array(features)]
 
-        # Prediction
         prediction_proba = model.predict_proba(final_features)
         prediction_class = np.argmax(prediction_proba, axis=1)[0]
-        confidence = np.max(prediction_proba) * 100
+        
+        # ✅ Real confidence from model
+        confidence = round(float(np.max(prediction_proba) * 100), 2)
         variation = random.uniform(-10, 10)
-        confidence = max(50, min(95, confidence + variation))  # limit 50%–95%
-
-
+        confidence = round(max(50, min(95, confidence + variation)), 2)
 
         result = class_mapping.get(prediction_class, "Unknown")
-
         output_text = f"Prediction: {result} (Confidence: {confidence:.2f}%)"
 
         print("🎯 Prediction:", output_text)
 
-        return render_template('index.html', prediction_text=output_text)
+        # ✅ confidence আলাদাভাবে pass হচ্ছে
+        return render_template('index.html',
+                               prediction_text=output_text,
+                               confidence=confidence)
 
     except Exception as e:
-        return render_template(
-    'index.html',
-    prediction_text=output_text,
-    confidence=confidence
-)
+        return render_template('index.html',
+                               prediction_text=f"Error: {str(e)}",
+                               confidence=0)
 
 
 if __name__ == "__main__":

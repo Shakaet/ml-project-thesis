@@ -606,7 +606,7 @@
         {% if prediction_text %}
             modal.classList.add("show");
 
-            let confidence = {{ confidence | default(80) }};
+            let confidence = {{ confidence | default(0) | float }};
             let risk = 100 - confidence;
 
             const ctx = document.getElementById('resultChart').getContext('2d');
